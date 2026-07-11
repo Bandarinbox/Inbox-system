@@ -92,7 +92,7 @@
     width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent-dark);
     display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;
   }#view-drv .driver-info{flex:1;min-width:0;}#view-drv .driver-info .name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}#view-drv .driver-info .sub{font-size:12px;color:var(--ink-soft);margin-top:2px;
-    font-family:'JetBrains Mono',monospace;}#view-drv .driver-badge{padding:5px 12px;border-radius:999px;font-size:11.5px;font-weight:600;flex-shrink:0;}#view-drv .ops-toggle{display:flex;align-items:center;gap:4px;flex-shrink:0;cursor:pointer;padding:4px 8px;border-radius:8px;background:var(--bg);}#view-drv .ops-toggle-cb{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;}#view-drv .ops-toggle-txt{font-size:12px;opacity:.7;}#view-drv .ops-toggle:has(.ops-toggle-cb:checked){background:var(--accent-soft);}#view-drv .ops-toggle:has(.ops-toggle-cb:not(:checked)){opacity:.55;}#view-drv .chev{color:var(--gray);flex-shrink:0;}#view-drv .empty-state{text-align:center;padding:50px 20px;color:var(--ink-soft);}#view-drv .add-fab{
+    font-family:'JetBrains Mono',monospace;}#view-drv .driver-badge{padding:5px 12px;border-radius:999px;font-size:11.5px;font-weight:600;flex-shrink:0;}#view-drv .ops-toggle{display:flex;align-items:center;gap:4px;flex-shrink:0;cursor:pointer;padding:4px 8px;border-radius:8px;background:var(--bg);}#view-drv .ops-toggle-cb{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;}#view-drv .ops-toggle-txt{font-size:12px;opacity:.7;}#view-drv .ops-toggle:has(.ops-toggle-cb:checked){background:var(--accent-soft);}#view-drv .ops-toggle:has(.ops-toggle-cb:not(:checked)){opacity:.55;}#view-drv .chip-warn{border-color:#F1C6C6;color:var(--red);}#view-drv .chip-warn.active{background:var(--red);border-color:var(--red);color:#fff;}#view-drv .iqama-flag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;margin-inline-start:6px;}#view-drv .iqama-flag.expired{background:var(--red-soft);color:var(--red);}#view-drv .iqama-flag.soon{background:var(--amber-soft);color:var(--amber);}#view-drv .chev{color:var(--gray);flex-shrink:0;}#view-drv .empty-state{text-align:center;padding:50px 20px;color:var(--ink-soft);}#view-drv .add-fab{
     position:fixed;bottom:24px;left:24px;width:54px;height:54px;border-radius:50%;
     background:var(--accent);color:#fff;border:none;font-size:26px;cursor:pointer;
     box-shadow:0 8px 20px -6px rgba(14,110,102,.55); z-index:20;
@@ -610,6 +610,7 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
       <button class="chip" data-app="Amazon">Amazon</button>
       <button class="chip" data-app="Noon Soon">Noon Soon</button>
       <button class="chip" data-app="__none">بدون تطبيق</button>
+      <button class="chip chip-warn" data-app="__iqama_soon">⚠️ الإقامة قربت تنتهي</button>
     </div>
     <div class="driver-list" id="drv_driverList">
       <div class="empty-state">جاري التحميل...</div>
@@ -764,6 +765,13 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
       <button class="chip" data-f="late" data-i18n="chipLate"></button>
       <button class="chip" data-f="issue" data-i18n="chipIssue"></button>
     </div>
+    <div class="chip-row" id="ops_appChipRow">
+      <button class="chip active" data-app="__all" data-i18n="chipAllApps"></button>
+      <button class="chip" data-app="HS">HS</button>
+      <button class="chip" data-app="Amazon">Amazon</button>
+      <button class="chip" data-app="Noon Soon">Noon Soon</button>
+      <button class="chip" data-app="__none" data-i18n="chipNoApp"></button>
+    </div>
     <div class="driver-list" id="ops_driverList"></div>
   </div>
 
@@ -783,6 +791,7 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
       <div class="field-grid">
         <div class="field"><label data-i18n="expectedStart"></label><input type="time" id="ops_f_expected" data-field="expected_start" disabled style="opacity:.75;background:var(--gray-soft);"></div>
         <div class="field"><label data-i18n="actualStart"></label><input type="time" id="ops_f_actual" data-field="actual_start"></div>
+        <div class="field"><label data-i18n="departureTime"></label><input type="time" id="ops_f_departure" data-field="departure_time"></div>
       </div>
       <div class="delay-readout" id="ops_delayReadout" style="display:none;">
         <span class="badge" id="ops_delayBadge"></span>
@@ -793,7 +802,7 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
     <div class="field-section">
       <h3 data-i18n="endOfDayTitle"></h3>
       <div class="field-grid">
-        <div class="field"><label data-i18n="actualEnd"></label><input type="time" id="ops_f_end" data-field="actual_end"></div>
+        <div class="field"><label data-i18n="shiftEnd"></label><input type="time" id="ops_f_end" data-field="actual_end"></div>
         <div class="field"><label data-i18n="ordersCount"></label><input type="number" min="0" id="ops_f_orders" data-field="orders_count"></div>
         <div class="field"><label data-i18n="hoursWorked"></label><input type="number" min="0" step="0.5" id="ops_f_hours" data-field="hours_worked"></div>
         <div class="field"><label data-i18n="cashAmount"></label><input type="number" min="0" step="0.01" id="ops_f_cash" data-field="cash_amount"></div>
@@ -1402,8 +1411,26 @@ function renderMiniStats(){
   `;
 }
 
+function iqamaDaysLeft(expStr){
+  if(!expStr) return null;
+  const exp = new Date(expStr+'T00:00:00');
+  if(isNaN(exp)) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.round((exp - today) / 86400000);
+}
+function iqamaFlagHTML(r){
+  const days = iqamaDaysLeft(r.iqama_exp);
+  if(days===null) return '';
+  if(days<0) return `<span class="iqama-flag expired">منتهية</span>`;
+  if(days<=30) return `<span class="iqama-flag soon">${days} يوم</span>`;
+  return '';
+}
+
 function matchesFilter(r){
-  if(activeFilter==='__none'){
+  if(activeFilter==='__iqama_soon'){
+    const days = iqamaDaysLeft(r.iqama_exp);
+    if(days===null || days>30) return false;
+  }else if(activeFilter==='__none'){
     if(r.current_app && r.current_app!=='-' && r.current_app!=='') return false;
   }else if(activeFilter!=='__all'){
     if(r.current_app !== activeFilter) return false;
@@ -1436,7 +1463,7 @@ function renderList(){
     return `<div class="driver-card" data-idx="${i}">
       <div class="driver-avatar">${initials(r.name)}</div>
       <div class="driver-info">
-        <div class="name">${r.name || t('noName')}</div>
+        <div class="name">${r.name || t('noName')}${iqamaFlagHTML(r)}</div>
         <div class="sub">${r.id || '—'}</div>
       </div>
       ${opsToggle}
@@ -1772,14 +1799,14 @@ const TRANSLATIONS = {
   ar: {
     title:'العمليات اليومية', subtitle:'سجّل حضور المناديب ونهاية يومهم', today:'اليوم',
     searchPh:'ابحث بالاسم أو رقم الإقامة...',
-    chipAll:'الكل', chipNotStarted:'لم يبدأ', chipOnTime:'على الوقت', chipLate:'متأخر', chipIssue:'فيه مشكلة',
+    chipAll:'الكل', chipNotStarted:'لم يبدأ', chipOnTime:'على الوقت', chipLate:'متأخر', chipIssue:'فيه مشكلة', chipAllApps:'كل التطبيقات', chipNoApp:'بدون تطبيق',
     statTotal:'إجمالي عدد المناديب لليوم', statOnTime:'بدأ في الوقت المحدد', statLate:'متأخر',
     statNotStarted:'لم يبدأ', statIssue:'أخرى',
     emptyState:'ما فيه نتائج مطابقة',
     noName:'(بدون اسم)', arrivedPrefix:'· حضر ',
     backToList:'رجوع لقائمة اليوم',
-    attendanceTitle:'الحضور', expectedStart:'وقت بداية الوردية المعتادة', actualStart:'وقت الحضور الفعلي',
-    endOfDayTitle:'نهاية اليوم', actualEnd:'وقت الانصراف', ordersCount:'عدد الطلبات',
+    attendanceTitle:'الحضور', expectedStart:'وقت بداية الوردية المعتادة', actualStart:'وقت الحضور الفعلي', departureTime:'وقت المغادرة',
+    endOfDayTitle:'نهاية اليوم', shiftEnd:'وقت نهاية الوردية', ordersCount:'عدد الطلبات',
     hoursWorked:'عدد ساعات العمل', cashAmount:'الكاش بالمحفظة (ريال)',
     notesTitle:'ملاحظات', hasIssue:'فيه مشكلة اليوم؟', notesPh:'تفاصيل المشكلة أو أي ملاحظة ثانية...',
     saved:'تم الحفظ', deleteEntryText:'حذف بيانات هذا اليوم لهذا الموظف نهائيًا', deleteEntryBtn:'حذف وإعادة الإدخال', confirmDeleteEntry:'حذف بيانات اليوم لهذا الموظف؟',
@@ -1790,14 +1817,14 @@ const TRANSLATIONS = {
   en: {
     title:'Daily Operations', subtitle:"Log drivers' attendance and end-of-day details", today:'Today',
     searchPh:'Search by name or ID...',
-    chipAll:'All', chipNotStarted:'Not started', chipOnTime:'On time', chipLate:'Late', chipIssue:'Has issue',
+    chipAll:'All', chipNotStarted:'Not started', chipOnTime:'On time', chipLate:'Late', chipIssue:'Has issue', chipAllApps:'All apps', chipNoApp:'No app',
     statTotal:'Total drivers today', statOnTime:'Started on time', statLate:'Late',
     statNotStarted:'Not started', statIssue:'Other',
     emptyState:'No matching results',
     noName:'(No name)', arrivedPrefix:'· Arrived ',
     backToList:"Back to today's list",
-    attendanceTitle:'Attendance', expectedStart:'Usual shift start time', actualStart:'Actual arrival time',
-    endOfDayTitle:'End of day', actualEnd:'Departure time', ordersCount:'Number of orders',
+    attendanceTitle:'Attendance', expectedStart:'Usual shift start time', actualStart:'Actual arrival time', departureTime:'Departure time',
+    endOfDayTitle:'End of day', shiftEnd:'Shift end time', ordersCount:'Number of orders',
     hoursWorked:'Hours worked', cashAmount:'Cash in wallet (SAR)',
     notesTitle:'Notes', hasIssue:'Any issue today?', notesPh:'Issue details or any other note...',
     saved:'Saved', deleteEntryText:'Delete this employee\'s data for today', deleteEntryBtn:'Delete & re-enter', confirmDeleteEntry:'Delete today\'s entry for this employee?',
@@ -1849,6 +1876,7 @@ let opsData = {};
 let currentDate = todayStr();
 let currentDriverId = null;
 let activeFilter = '__all';
+let activeAppFilter = '__all';
 let searchTerm = '';
 
 function todayStr(){
@@ -1893,7 +1921,7 @@ function getRecord(driverId){
   if(!opsData[driverId]){
     opsData[driverId] = {
       expected_start: (driver && driver.default_shift_start) || '09:00',
-      actual_start:'', actual_end:'', orders_count:'', hours_worked:'', cash_amount:'',
+      actual_start:'', departure_time:'', actual_end:'', orders_count:'', hours_worked:'', cash_amount:'',
       has_issue:false, notes:''
     };
   }else{
@@ -1943,6 +1971,11 @@ function renderStats(){
 function matchesFilter(d){
   const rec = getRecord(d.id);
   const st = attendanceStatus(rec);
+  if(activeAppFilter==='__none'){
+    if(d.current_app && d.current_app!=='-' && d.current_app!=='') return false;
+  }else if(activeAppFilter!=='__all'){
+    if(d.current_app !== activeAppFilter) return false;
+  }
   if(activeFilter==='issue') return !!rec.has_issue;
   if(activeFilter!=='__all' && st!==activeFilter) return false;
   if(searchTerm){
@@ -2039,6 +2072,7 @@ function openEntry(driverId){
 
   document.getElementById('ops_f_expected').value = rec.expected_start || '';
   document.getElementById('ops_f_actual').value = rec.actual_start || '';
+  document.getElementById('ops_f_departure').value = rec.departure_time || '';
   document.getElementById('ops_f_end').value = rec.actual_end || '';
   document.getElementById('ops_f_orders').value = rec.orders_count || '';
   document.getElementById('ops_f_hours').value = rec.hours_worked || '';
@@ -2046,7 +2080,7 @@ function openEntry(driverId){
   document.getElementById('ops_f_has_issue').checked = !!rec.has_issue;
   document.getElementById('ops_f_notes').value = rec.notes || '';
 
-  const editableFields = ['ops_f_actual','ops_f_end','ops_f_orders','ops_f_hours','ops_f_cash','ops_f_has_issue','ops_f_notes'];
+  const editableFields = ['ops_f_actual','ops_f_departure','ops_f_end','ops_f_orders','ops_f_hours','ops_f_cash','ops_f_has_issue','ops_f_notes'];
   editableFields.forEach(id=>{ document.getElementById(id).disabled = !currentCanEdit; });
   document.getElementById('ops_deleteEntryBtn').style.display = currentCanEdit ? '' : 'none';
   document.getElementById('ops_saveEntryBtn').style.display = currentCanEdit ? '' : 'none';
@@ -2070,6 +2104,7 @@ document.getElementById('ops_saveEntryBtn').addEventListener('click', async ()=>
   if(!currentCanEdit || currentDriverId===null) return;
   const rec = getRecord(currentDriverId);
   rec.actual_start = document.getElementById('ops_f_actual').value;
+  rec.departure_time = document.getElementById('ops_f_departure').value;
   rec.actual_end = document.getElementById('ops_f_end').value;
   rec.orders_count = document.getElementById('ops_f_orders').value;
   rec.hours_worked = document.getElementById('ops_f_hours').value;
@@ -2114,11 +2149,20 @@ document.getElementById('ops_entryView').addEventListener('blur', (e)=>{
   persistOps();
 }, true);
 
-opsRoot.querySelectorAll('.chip').forEach(chip=>{
+opsRoot.querySelectorAll('.chip-row:not(#ops_appChipRow) .chip').forEach(chip=>{
   chip.addEventListener('click', ()=>{
-    opsRoot.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    opsRoot.querySelectorAll('.chip-row:not(#ops_appChipRow) .chip').forEach(c=>c.classList.remove('active'));
     chip.classList.add('active');
     activeFilter = chip.dataset.f;
+    renderList();
+  });
+});
+
+document.getElementById('ops_appChipRow').querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.getElementById('ops_appChipRow').querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    activeAppFilter = chip.dataset.app;
     renderList();
   });
 });
