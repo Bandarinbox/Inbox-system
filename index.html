@@ -76,7 +76,10 @@
     background:var(--panel);border:1px solid var(--line);border-radius:10px;
     padding:9px 14px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink);
     cursor:pointer;white-space:nowrap;
-  }#view-drv .stats-toggle:hover{border-color:var(--accent);color:var(--accent-dark);}#view-drv .stats-toggle.active{background:var(--accent);border-color:var(--accent);color:#fff;}#view-drv .lang-toggle{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);}#view-drv .lang-toggle button{border:none;background:transparent;padding:8px 12px;font-family:inherit;font-size:12px;font-weight:600;color:var(--ink-soft);cursor:pointer;}#view-drv .lang-toggle button.active{background:var(--accent);color:#fff;}#view-drv #drv_statsView{display:none;margin-bottom:20px;}#view-drv .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;}#view-drv .stat-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden;}#view-drv .stat-card .num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:24px;color:var(--ink);}#view-drv .stat-card .lbl{font-size:12px;color:var(--ink-soft);margin-top:2px;}#view-drv .stat-card .bar{position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;}#view-drv .bar.green{background:var(--green);}#view-drv .bar.amber{background:var(--amber);}#view-drv .bar.red{background:var(--red);}#view-drv .bar.gray{background:var(--gray);}#view-drv .bar.accent{background:var(--accent);}#view-drv .breakdown-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}#view-drv .breakdown-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;}#view-drv .breakdown-card h3{margin:0 0 10px;font-size:13px;color:var(--ink-soft);font-weight:600;}#view-drv .bd-item{display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:5px 0;}#view-drv .bd-item .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:8px;}#view-drv .bd-item .name{display:flex;align-items:center;color:var(--ink);}#view-drv .bd-item .count{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--ink-soft);}#view-drv .bd-bar-bg{height:5px;border-radius:3px;background:var(--gray-soft);margin-top:4px;overflow:hidden;}#view-drv .bd-bar-fill{height:100%;border-radius:3px;}#view-drv #drv_listView .search-box{position:relative;margin-bottom:14px;}#view-drv .export-row{display:flex;justify-content:flex-end;margin-bottom:14px;}#view-drv .btn-export{border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  }#view-drv .stats-toggle:hover{border-color:var(--accent);color:var(--accent-dark);}#view-drv .stats-toggle.active{background:var(--accent);border-color:var(--accent);color:#fff;}#view-drv .lang-toggle{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);}#view-drv .lang-toggle button{border:none;background:transparent;padding:8px 12px;font-family:inherit;font-size:12px;font-weight:600;color:var(--ink-soft);cursor:pointer;}#view-drv .lang-toggle button.active{background:var(--accent);color:#fff;}#view-drv #drv_statsView{display:none;margin-bottom:20px;}#view-drv .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;}#view-drv .stat-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden;}#view-drv .stat-card .num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:24px;color:var(--ink);}#view-drv .stat-card .lbl{font-size:12px;color:var(--ink-soft);margin-top:2px;}#view-drv .stat-card .bar{position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;}#view-drv .bar.green{background:var(--green);}#view-drv .bar.amber{background:var(--amber);}#view-drv .bar.red{background:var(--red);}#view-drv .bar.gray{background:var(--gray);}#view-drv .bar.accent{background:var(--accent);}#view-drv .breakdown-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}#view-drv .breakdown-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;}#view-drv .breakdown-card h3{margin:0 0 10px;font-size:13px;color:var(--ink-soft);font-weight:600;}#view-drv .bd-item{display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:5px 0;}#view-drv .bd-item .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:8px;}#view-drv .bd-item .name{display:flex;align-items:center;color:var(--ink);}#view-drv .bd-item .count{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--ink-soft);}#view-drv .bd-bar-bg{height:5px;border-radius:3px;background:var(--gray-soft);margin-top:4px;overflow:hidden;}#view-drv .bd-bar-fill{height:100%;border-radius:3px;}#view-drv #drv_listView .search-box{position:relative;margin-bottom:14px;}#view-drv .export-row{display:flex;justify-content:flex-end;gap:8px;margin-bottom:14px;flex-wrap:wrap;}#view-drv #drv_importPreview{margin-bottom:14px;}#view-drv #drv_importPreview table{border-collapse:collapse;width:100%;font-size:12.5px;background:var(--panel);
+    border-radius:12px;overflow:hidden;border:1px solid var(--line);}#view-drv #drv_importPreview thead th{text-align:right;padding:8px 10px;background:var(--bg);color:var(--ink-soft);
+    font-weight:600;font-size:11px;border-bottom:1px solid var(--line);}#view-drv #drv_importPreview tbody td{padding:7px 10px;border-bottom:1px solid var(--line);}#view-drv #drv_importPreview .match-update{color:var(--accent-dark);font-weight:600;}#view-drv #drv_importPreview .match-new{color:#B8790C;font-weight:600;}#view-drv #drv_importPreview .import-confirm{width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;
+    padding:11px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;margin-top:10px;}#view-drv #drv_importPreview .import-confirm:hover{background:var(--accent-dark);}#view-drv #drv_importPreview .import-scroll{max-height:320px;overflow:auto;}#view-drv .btn-export{border:1px solid var(--line);background:var(--panel);color:var(--ink);
     padding:9px 16px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}#view-drv .btn-export:hover{border-color:var(--accent);color:var(--accent-dark);}#view-drv #drv_listView input{
     width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--line);
     background:var(--panel);font-family:inherit;font-size:15px;color:var(--ink);
@@ -596,8 +599,11 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
       <input type="text" id="drv_searchInput" data-i18n-ph="searchPh">
     </div>
     <div class="export-row">
+      <button class="btn-export" id="drv_importBtn">⬆️ استيراد Excel (تعديل جماعي)</button>
+      <input type="file" id="drv_importFile" accept=".xlsx,.xls" style="display:none;">
       <button class="btn-export" id="drv_exportBtn">⬇️ تصدير Excel</button>
     </div>
+    <div id="drv_importPreview"></div>
     <div class="driver-list" id="drv_driverList">
       <div class="empty-state">جاري التحميل...</div>
     </div>
@@ -1618,6 +1624,99 @@ document.getElementById('drv_exportBtn').addEventListener('click', ()=>{
   XLSX.utils.book_append_sheet(wb, ws, 'الموظفين');
   const dateStr = new Date().toISOString().slice(0,10);
   XLSX.writeFile(wb, 'موظفين_InBox_'+dateStr+'.xlsx');
+});
+
+document.getElementById('drv_importBtn').addEventListener('click', ()=>{
+  document.getElementById('drv_importFile').click();
+});
+
+function reverseLookup(dict, label, fallback){
+  if(!label) return fallback;
+  const l = String(label).trim();
+  for(const k in dict.ar){ if(dict.ar[k]===l) return k; }
+  for(const k in dict.en){ if(dict.en[k]===l) return k; }
+  return l; // خله كما هو لو ما طابق (يمكن يكون القيمة الأصلية مباشرة)
+}
+
+document.getElementById('drv_importFile').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt)=>{
+    const wb = XLSX.read(evt.target.result, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+    if(rows.length===0){ alert('الملف فاضي أو ما قدرنا نقرأه'); return; }
+
+    const parsed = rows.map(row=>{
+      const id = String(row['رقم الإقامة']||'').trim();
+      const existingIdx = data.findIndex(d=>d.id && d.id===id);
+      return {
+        id, existingIdx,
+        name: row['الاسم']||'',
+        role_category: reverseLookup(ROLE_LABELS, row['المهنة'], 'مندوب'),
+        activity_status: reverseLookup(ACTIVITY_LABELS, row['حالة النشاط'], ''),
+        profession: row['المسمى الوظيفي']||'',
+        nationality: row['الجنسية']||'',
+        gender: row['الجنس']||'',
+        hs_id: row['HS']||'-', noon_id: row['Noon']||'-', keeta_id: row['Keeta']||'-',
+        current_app: row['التطبيق الحالي']||'-',
+        passport_no: row['رقم الجواز']||'',
+        passport_exp: row['تاريخ انتهاء الجواز']||'',
+        iqama_issue: row['تاريخ إصدار الإقامة']||'',
+        iqama_exp: row['تاريخ انتهاء الإقامة']||'',
+        birthdate: row['تاريخ الميلاد']||'',
+        outside_ksa: row['خارج المملكة']||'',
+        start_date: row['تاريخ بداية العمل']||'',
+        default_shift_start: row['وقت الوردية المعتادة']||'',
+        employer_no: row['رقم صاحب العمل']||'',
+        note: row['ملاحظات']||'',
+      };
+    }).filter(r=>r.id || r.name);
+
+    const previewEl = document.getElementById('drv_importPreview');
+    const updateCount = parsed.filter(r=>r.existingIdx>-1).length;
+    const newCount = parsed.length - updateCount;
+    previewEl.innerHTML = `
+      <div class="import-scroll"><table><thead><tr>
+        <th>الاسم</th><th>رقم الإقامة</th><th>المهنة</th><th>الحالة</th>
+      </tr></thead><tbody>
+        ${parsed.map(r=>`<tr>
+          <td>${r.name||'—'}</td><td>${r.id||'—'}</td><td>${r.role_category}</td>
+          <td class="${r.existingIdx>-1?'match-update':'match-new'}">${r.existingIdx>-1?'تحديث موجود':'موظف جديد'}</td>
+        </tr>`).join('')}
+      </tbody></table></div>
+      <button class="import-confirm" id="drv_confirmImportBtn">تأكيد التعديل الجماعي (${updateCount} تحديث، ${newCount} جديد)</button>
+      <button class="btn-export" id="drv_cancelImportBtn" style="margin-top:8px;width:100%;">إلغاء</button>
+    `;
+
+    document.getElementById('drv_cancelImportBtn').addEventListener('click', ()=>{
+      previewEl.innerHTML = '';
+      document.getElementById('drv_importFile').value = '';
+    });
+
+    document.getElementById('drv_confirmImportBtn').addEventListener('click', async ()=>{
+      parsed.forEach(r=>{
+        const updates = {...r};
+        delete updates.existingIdx;
+        if(r.existingIdx>-1){
+          data[r.existingIdx] = {...data[r.existingIdx], ...updates};
+        }else{
+          data.unshift({
+            license:'', photo_iqama:'', photo_license:'', photo_personal:'', show_in_ops:true,
+            iqama_exp_hijri:'', aug:'', assigned_supervisor:'', ...updates
+          });
+        }
+      });
+      await persist(true);
+      renderList();
+      renderMiniStats();
+      previewEl.innerHTML = '';
+      document.getElementById('drv_importFile').value = '';
+      alert('تم تحديث '+updateCount+' موظف وإضافة '+newCount+' موظف جديد بنجاح');
+    });
+  };
+  reader.readAsArrayBuffer(file);
 });
 
 async function initDrv(){
