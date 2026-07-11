@@ -599,11 +599,18 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
       <input type="text" id="drv_searchInput" data-i18n-ph="searchPh">
     </div>
     <div class="export-row">
-      <button class="btn-export" id="drv_importBtn">⬆️ استيراد Excel (تعديل جماعي)</button>
+      <button class="btn-export" id="drv_importBtn">⬆️ استيراد</button>
       <input type="file" id="drv_importFile" accept=".xlsx,.xls" style="display:none;">
       <button class="btn-export" id="drv_exportBtn">⬇️ تصدير Excel</button>
     </div>
     <div id="drv_importPreview"></div>
+    <div class="chip-row" id="drv_chipRow">
+      <button class="chip active" data-app="__all">الكل</button>
+      <button class="chip" data-app="HS">HS</button>
+      <button class="chip" data-app="Amazon">Amazon</button>
+      <button class="chip" data-app="Noon Soon">Noon Soon</button>
+      <button class="chip" data-app="__none">بدون تطبيق</button>
+    </div>
     <div class="driver-list" id="drv_driverList">
       <div class="empty-state">جاري التحميل...</div>
     </div>
@@ -1396,6 +1403,11 @@ function renderMiniStats(){
 }
 
 function matchesFilter(r){
+  if(activeFilter==='__none'){
+    if(r.current_app && r.current_app!=='-' && r.current_app!=='') return false;
+  }else if(activeFilter!=='__all'){
+    if(r.current_app !== activeFilter) return false;
+  }
   if(searchTerm){
     const hay = ((r.name||'')+' '+(r.id||'')).toLowerCase();
     if(!hay.includes(searchTerm.toLowerCase())) return false;
@@ -1604,6 +1616,15 @@ document.getElementById('drv_addFab').addEventListener('click', ()=>{
 document.getElementById('drv_searchInput').addEventListener('input', (e)=>{
   searchTerm = e.target.value;
   renderList();
+});
+
+drvRoot.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    drvRoot.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    activeFilter = chip.dataset.app;
+    renderList();
+  });
 });
 
 document.getElementById('drv_exportBtn').addEventListener('click', ()=>{
