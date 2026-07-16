@@ -1045,12 +1045,13 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
       <h3 data-i18n="manualRevTitle"></h3>
       <div class="hint" data-i18n="manualRevHint"></div>
       <div class="form-grid">
-        <div class="field"><label data-i18n="lblEmployee"></label><select id="fin_manualRev_driver"></select></div>
+        <div class="field"><label data-i18n="lblSource"></label><input type="text" id="fin_manualRev_source" data-i18n-ph="srcOtherPh"></div>
         <div class="field"><label data-i18n="monthLabel2"></label><input type="month" id="fin_manualRev_month"></div>
         <div class="field"><label data-i18n="lblAmount"></label><input type="number" step="0.01" id="fin_manualRev_amount"></div>
         <div class="field"><label data-i18n="lblDesc"></label><input type="text" id="fin_manualRev_desc" data-i18n-ph="optionalPh"></div>
       </div>
       <button class="btn btn-primary" id="fin_manualRevBtn" data-i18n="addRevBtn"></button>
+      <div id="fin_generalRevList" style="margin-top:16px;"></div>
     </div>
 
     <div class="panel">
@@ -2589,7 +2590,7 @@ const TRANSLATIONS = {
     directExpenseTitle:'تسجيل مصروف مباشر (من عهدة المشرف)', lblEmployee:'المندوب', lblCategory:'الفئة',
     catIqama:'تجديد إقامة', catMedical:'تأمين طبي', catMeds:'أدوية', catOther:'أخرى', lblDesc:'وصف',
     ledgerTitle:'سجل الحركات', saved:'تم الحفظ',
-    manualRevTitle:'إضافة إيراد يدويًا', manualRevHint:'لو ما عندك ملف Excel، تقدر تضيف مبلغ الإيراد مباشرة لأي مندوب مع التفاصيل.', addRevBtn:'+ إضافة الإيراد',
+    manualRevTitle:'إضافة إيراد عام يدويًا', manualRevHint:'إيراد عام للشركة من تطبيق أو مصدر آخر — لا يُحتسب على مندوب معيّن بجدول الصافي.', addRevBtn:'+ إضافة الإيراد', lblSource:'المصدر', srcOtherPh:'مثال: HS، Noon، Amazon، تحويل بنكي...', alertSource:'أدخل اسم المصدر', emptyGeneralRev:'ما فيه إيراد عام مسجل لهذا الشهر بعد', colSource:'المصدر',
     revImportTitle:'استيراد فاتورة الإيراد الشهرية', revImportHint:'ملف CSV فيه عمود لرقم الإقامة أو اسم المندوب + عمود للمبلغ. يتوزع تلقائي حسب المندوب.',
     fuelImportTitle:'استيراد تقرير البنزين الشهري', fuelImportHint:'نفس الفكرة — ملف CSV فيه المندوب والمبلغ المصروف',
     dragCsv:'اسحب ملف CSV هنا أو اختره',
@@ -2621,7 +2622,7 @@ const TRANSLATIONS = {
     directExpenseTitle:"Log Direct Expense (from Supervisor's Custody)", lblEmployee:'Employee', lblCategory:'Category',
     catIqama:'Iqama Renewal', catMedical:'Medical Insurance', catMeds:'Medication', catOther:'Other', lblDesc:'Description',
     ledgerTitle:'Ledger', saved:'Saved',
-    manualRevTitle:'Add Revenue Manually', manualRevHint:"If you don't have an Excel file, you can add a revenue amount directly for any employee with details.", addRevBtn:'+ Add Revenue',
+    manualRevTitle:'Add General Revenue Manually', manualRevHint:"General company revenue from an app or other source — not attributed to a specific employee in the net table.", addRevBtn:'+ Add Revenue', lblSource:'Source', srcOtherPh:'e.g. HS, Noon, Amazon, bank transfer...', alertSource:'Enter the source name', emptyGeneralRev:'No general revenue logged for this month yet', colSource:'Source',
     revImportTitle:'Import Monthly Revenue Invoice', revImportHint:'A CSV with a column for ID number or employee name + an amount column. Distributed automatically per employee.',
     fuelImportTitle:'Import Monthly Fuel Report', fuelImportHint:'Same idea — a CSV with the employee and the amount spent',
     dragCsv:'Drag a CSV file here or choose one',
@@ -2657,6 +2658,7 @@ async function setLanguage(lang, persist_pref){
   applyStaticTranslations();
   renderOverview();
   if(document.getElementById('fin_tab-custody').classList.contains('active')) renderCustodyList();
+  if(document.getElementById('fin_tab-imports').classList.contains('active')) renderGeneralRevList();
   if(currentDriverId) renderDriverDetail();
   if(persist_pref!==false){
     try{ await window.storage.set('lang-pref', lang, false); }catch(e){}
@@ -2677,8 +2679,9 @@ function initials(name){ if(!name) return '؟'; const p=name.trim().split(/\s+/)
 
 async function loadAll(){
   driversData = window.__driversData || [];
-  fin = window.__financeData || { supervisors:[], parts:[], partTx:[], expenses:[], topups:[], fuelImports:[], revenueImports:[] };
+  fin = window.__financeData || { supervisors:[], parts:[], partTx:[], expenses:[], topups:[], fuelImports:[], revenueImports:[], generalRevenue:[] };
   if(!fin.supervisors) fin.supervisors = [];
+  if(!fin.generalRevenue) fin.generalRevenue = [];
 }
 
 let toastTimeout=null;
@@ -2767,6 +2770,10 @@ function renderOverview(){
     totalRevenue += rev; totalExpenses += totalCost; totalFuel += fuel;
     return {d, rev, directSpend, partsSpend, fuel, totalCost, net};
   }).filter(r=>r.rev>0 || r.totalCost>0);
+
+  // إيراد عام (تطبيقات/مصادر أخرى) — يُضاف للإجمالي بدون ما يُنسب لمندوب معيّن
+  const generalRevMonth = (fin.generalRevenue||[]).filter(x=>x.month===month).reduce((s,x)=>s+Math.abs(x.amount||0),0);
+  totalRevenue += generalRevMonth;
 
   rows.sort((a,b)=>b.net-a.net);
 
@@ -2988,17 +2995,43 @@ function setupImport(fileInputId, previewId, monthInputId, targetArrayKey){
     });
   });
 }
+function renderGeneralRevList(){
+  const month = document.getElementById('fin_manualRev_month').value || thisMonth();
+  const el = document.getElementById('fin_generalRevList');
+  const rows = (fin.generalRevenue||[]).filter(x=>x.month===month).slice().reverse();
+  if(rows.length===0){ el.innerHTML = `<div class="empty-state">${t('emptyGeneralRev')}</div>`; return; }
+  el.innerHTML = `<table><thead><tr><th>${t('colSource')}</th><th>${t('lblDesc')}</th><th>${t('lblAmount')}</th><th></th></tr></thead><tbody>
+    ${rows.map(r=>`<tr>
+      <td>${r.source}</td><td>${r.description||'—'}</td><td class="num-cell">${fmtMoney(r.amount)}</td>
+      <td><button class="btn-danger-sm gen-rev-del" data-id="${r.id}">✕</button></td>
+    </tr>`).join('')}
+    </tbody></table>`;
+  el.querySelectorAll('.gen-rev-del').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      if(!confirm(t('confirmDeleteSup'))) return;
+      fin.generalRevenue = fin.generalRevenue.filter(r=>r.id!==btn.dataset.id);
+      await persistFin();
+      renderGeneralRevList();
+      renderOverview();
+    });
+  });
+}
+document.getElementById('fin_manualRev_month').addEventListener('change', renderGeneralRevList);
+
 document.getElementById('fin_manualRevBtn').addEventListener('click', async ()=>{
-  const driverId = document.getElementById('fin_manualRev_driver').value;
+  const source = document.getElementById('fin_manualRev_source').value.trim();
   const month = document.getElementById('fin_manualRev_month').value || thisMonth();
   const amount = parseFloat(document.getElementById('fin_manualRev_amount').value);
   const description = document.getElementById('fin_manualRev_desc').value || '';
-  if(!driverId){ alert(t('alertEmployee')); return; }
+  if(!source){ alert(t('alertSource')); return; }
   if(!amount || amount<=0){ alert(t('alertAmount')); return; }
-  fin.revenueImports.push({id:uid(), driver_id:driverId, month, amount, date: month+'-01', description});
+  if(!fin.generalRevenue) fin.generalRevenue = [];
+  fin.generalRevenue.push({id:uid(), source, month, amount, date: month+'-01', description});
   await persistFin();
+  document.getElementById('fin_manualRev_source').value='';
   document.getElementById('fin_manualRev_amount').value='';
   document.getElementById('fin_manualRev_desc').value='';
+  renderGeneralRevList();
   renderOverview();
 });
 
@@ -3011,7 +3044,7 @@ async function initFin(){
   document.getElementById('fin_rev_month').value = thisMonth();
   document.getElementById('fin_fuel_month').value = thisMonth();
   document.getElementById('fin_manualRev_month').value = thisMonth();
-  document.getElementById('fin_manualRev_driver').innerHTML = workingDrivers().map(d=>`<option value="${d.id}">${d.name||d.id}</option>`).join('');
+  renderGeneralRevList();
   let savedLang = 'ar';
   try{
     const res = await window.storage.get('lang-pref', false);
@@ -3025,8 +3058,10 @@ window.__onDataChange.push(function(){
   driversData = window.__driversData || [];
   fin = window.__financeData || fin;
   if(!fin.supervisors) fin.supervisors = [];
+  if(!fin.generalRevenue) fin.generalRevenue = [];
   renderOverview();
   if(document.getElementById('fin_tab-custody').classList.contains('active')) renderCustodyList();
+  if(document.getElementById('fin_tab-imports').classList.contains('active')) renderGeneralRevList();
 });
 
 })();
