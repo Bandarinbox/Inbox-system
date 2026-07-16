@@ -1006,16 +1006,6 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
 
       <div id="fin_generalRevList" style="margin-top:16px;"></div>
     </div>
-    <div class="month-picker">
-      <span data-i18n="monthLabel"></span>
-      <input type="month" id="fin_overviewMonth">
-    </div>
-    <div class="stats-grid" id="fin_overviewStats"></div>
-    <div class="panel">
-      <h3 data-i18n="netTitle"></h3>
-      <div class="hint" data-i18n="netHint"></div>
-      <div id="fin_netTable"></div>
-    </div>
   </div>
 
   <!-- ===== CUSTODY (SUPERVISORS) ===== -->
@@ -2887,48 +2877,7 @@ function driverMonthFuel(driverId, month){
 // ---------- Overview ----------
 function renderOverview(){
   renderCompanyAccount();
-  const month = document.getElementById('fin_overviewMonth').value || thisMonth();
-  document.getElementById('fin_overviewMonth').value = month;
-
-  const drivers = workingDrivers();
-  let totalRevenue=0, totalExpenses=0;
-  const rows = drivers.map(d=>{
-    const rev = driverMonthRevenue(d.id, month);
-    const directSpend = driverExpenseEntries(d.id).filter(x=>x.kind==='direct' && (x.date||'').slice(0,7)===month).reduce((s,x)=>s+Math.abs(x.amount),0);
-    const totalCost = directSpend;
-    const net = rev - totalCost;
-    totalRevenue += rev; totalExpenses += totalCost;
-    return {d, rev, directSpend, totalCost, net};
-  }).filter(r=>r.rev>0 || r.totalCost>0);
-
-  rows.sort((a,b)=>b.net-a.net);
-
-  const grid = document.getElementById('fin_overviewStats');
-  const cards = [
-    {num:fmtMoney(totalRevenue), lbl:t('statRevenue'), bar:'green'},
-    {num:fmtMoney(totalExpenses), lbl:t('statExpenses'), bar:'red'},
-    {num:fmtMoney(totalRevenue-totalExpenses), lbl:t('statNet'), bar:'accent'},
-  ];
-  grid.innerHTML = cards.map(c=>`<div class="stat-card"><div class="bar ${c.bar}"></div>
-    <div class="num">${c.num}</div><div class="lbl">${c.lbl}</div></div>`).join('');
-
-  const tableEl = document.getElementById('fin_netTable');
-  if(rows.length===0){
-    tableEl.innerHTML = `<div class="empty-state">${t('emptyNet')}</div>`;
-    return;
-  }
-  tableEl.innerHTML = `<table><thead><tr>
-      <th>${t('colEmployee')}</th><th>${t('colRevenue')}</th><th>${t('colDirectExp')}</th><th>${t('colNet')}</th>
-    </tr></thead><tbody>
-    ${rows.map(r=>`<tr>
-      <td>${r.d.name||r.d.id}</td>
-      <td class="num-cell">${fmtMoney(r.rev)}</td>
-      <td class="num-cell">${fmtMoney(r.directSpend)}</td>
-      <td class="num-cell ${r.net>=0?'pos':'neg'}">${fmtMoney(r.net)}</td>
-    </tr>`).join('')}
-    </tbody></table>`;
 }
-document.getElementById('fin_overviewMonth').addEventListener('change', renderOverview);
 
 // ---------- Custody tab (supervisors) ----------
 function renderCustodyList(){
@@ -3224,7 +3173,6 @@ setupImport('fin_fuelFile','fin_fuelPreview','fin_fuel_month','fuelImports');
 
 async function initFin(){
   await loadAll();
-  document.getElementById('fin_overviewMonth').value = thisMonth();
   document.getElementById('fin_rev_month').value = thisMonth();
   document.getElementById('fin_fuel_month').value = thisMonth();
   document.getElementById('fin_manualRev_date').value = todayStr();
