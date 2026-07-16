@@ -120,7 +120,8 @@
     padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);
     font-family:inherit;font-size:13.5px;color:var(--ink);
   }#view-drv .field input:focus, #view-drv .field select:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-soft);}#view-drv .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}#view-drv .photo-slot{display:flex;flex-direction:column;gap:6px;}#view-drv .photo-slot label{font-size:11.5px;color:var(--ink-soft);font-weight:600;}#view-drv .photo-preview{width:100%;aspect-ratio:1;border-radius:12px;background:var(--bg);border:1.5px dashed var(--line);
-    display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--gray);font-size:11px;}#view-drv .photo-preview img{width:100%;height:100%;object-fit:cover;}#view-drv .photo-slot input[type=file]{font-size:11px;}#view-drv .photo-upload-status{margin-top:10px;font-size:12px;color:var(--accent-dark);min-height:16px;}#view-drv .danger-zone{display:flex;justify-content:space-between;align-items:center;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--gray);font-size:11px;}#view-drv .photo-preview img{width:100%;height:100%;object-fit:cover;}#view-drv .photo-slot input[type=file]{font-size:11px;}#view-drv .photo-upload-status{margin-top:10px;font-size:12px;color:var(--accent-dark);min-height:16px;}#view-drv .custody-hero{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-dark));border-radius:14px;padding:16px 18px;color:#fff;}#view-drv .custody-balance{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:22px;}#view-drv #drv_custodyLedger table{border-collapse:collapse;width:100%;font-size:12.5px;}#view-drv #drv_custodyLedger thead th{text-align:right;padding:8px 10px;color:var(--ink-soft);font-weight:600;font-size:11px;border-bottom:1px solid var(--line);}#view-drv #drv_custodyLedger tbody td{padding:7px 10px;border-bottom:1px solid var(--line);}#view-drv #drv_custodyLedger .pos{color:var(--green);font-weight:700;}#view-drv #drv_custodyLedger .neg{color:var(--red);font-weight:700;}#view-drv .danger-zone{display:flex;justify-content:space-between;align-items:center;
     background:var(--red-soft);border:1px solid #F1C6C6;border-radius:14px;padding:14px 18px;margin-top:6px;}#view-drv .danger-zone span{font-size:12.5px;color:var(--red);}#view-drv .btn-danger{background:var(--red);color:#fff;border:none;border-radius:9px;padding:8px 16px;
     font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;}#view-drv .btn-danger:hover{background:#a12e2e;}#view-drv .save-toast{
     position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
@@ -704,6 +705,32 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
         </div>
       </div>
       <div class="photo-upload-status" id="drv_photoStatus"></div>
+    </div>
+
+    <div class="field-section">
+      <h3>عهدة الموظف</h3>
+      <div class="custody-hero">
+        <div class="custody-balance" id="drv_custodyBalance">0.00 ر.س</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-export" id="drv_addCustodyBtn">+ إضافة عهدة</button>
+          <button class="btn-export" id="drv_addCustodyExpBtn">+ تسجيل مصروف</button>
+        </div>
+      </div>
+      <div class="form-grid" id="drv_custodyTopupForm" style="display:none;margin-top:12px;">
+        <div class="field"><label>التاريخ</label><input type="date" id="drv_ctu_date"></div>
+        <div class="field"><label>المبلغ (ر.س)</label><input type="number" step="0.01" id="drv_ctu_amount"></div>
+        <div class="field"><label>ملاحظة</label><input type="text" id="drv_ctu_note" placeholder="اختياري"></div>
+      </div>
+      <button class="btn btn-primary" id="drv_saveCustodyTopupBtn" style="display:none;margin-top:8px;">حفظ العهدة</button>
+
+      <div class="form-grid" id="drv_custodyExpForm" style="display:none;margin-top:12px;">
+        <div class="field"><label>التاريخ</label><input type="date" id="drv_cex_date"></div>
+        <div class="field"><label>المبلغ (ر.س)</label><input type="number" step="0.01" id="drv_cex_amount"></div>
+        <div class="field"><label>الوصف</label><input type="text" id="drv_cex_desc" placeholder="مثال: سلفة، مشتريات..."></div>
+      </div>
+      <button class="btn btn-primary" id="drv_saveCustodyExpBtn" style="display:none;margin-top:8px;">حفظ المصروف</button>
+
+      <div id="drv_custodyLedger" style="margin-top:14px;"></div>
     </div>
 
     <div class="danger-zone">
@@ -1318,7 +1345,7 @@ document.getElementById('drv_langAr').addEventListener('click', ()=>setLanguage(
 document.getElementById('drv_langEn').addEventListener('click', ()=>setLanguage('en'));
 
 let data = [];
-let fin = { supervisors:[] };
+let fin = { supervisors:[], topups:[], generalRevenue:[], generalExpensesGeneral:[], employeeCustody:[] };
 let activeFilter = '__all';
 let searchTerm = '';
 let currentIdx = null;
@@ -1349,6 +1376,9 @@ function initials(name){
   const parts = name.trim().split(/\s+/);
   return parts[0] ? parts[0][0].toUpperCase() : '?';
 }
+function fmtMoney(n){ return (Math.round((n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' ر.س'; }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 
 function countBy(field, keys){
   const out = {};
@@ -1565,6 +1595,12 @@ function openEdit(idx){
   renderPhotoPreview('drv_photo_license_preview', r.photo_license);
   renderPhotoPreview('drv_photo_personal_preview', r.photo_personal);
   document.getElementById('drv_photoStatus').textContent = '';
+
+  document.getElementById('drv_custodyTopupForm').style.display = 'none';
+  document.getElementById('drv_saveCustodyTopupBtn').style.display = 'none';
+  document.getElementById('drv_custodyExpForm').style.display = 'none';
+  document.getElementById('drv_saveCustodyExpBtn').style.display = 'none';
+  renderEmployeeCustody();
 
   window.scrollTo(0,0);
 }
@@ -1784,9 +1820,88 @@ document.getElementById('drv_importFile').addEventListener('change', (e)=>{
   reader.readAsArrayBuffer(file);
 });
 
+function employeeCustodyEntries(employeeId){
+  return (fin.employeeCustody||[]).filter(x=>x.employee_id===employeeId)
+    .slice().sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+}
+function employeeCustodyBalance(employeeId){
+  return employeeCustodyEntries(employeeId).reduce((s,x)=>s + (x.type==='topup'?1:-1)*Math.abs(x.amount||0), 0);
+}
+async function saveFinData(){
+  try{ await window.__saveFinance(fin); }catch(e){ console.error(e); }
+}
+function renderEmployeeCustody(){
+  if(currentIdx===null) return;
+  const employeeId = data[currentIdx].id;
+  const bal = employeeCustodyBalance(employeeId);
+  document.getElementById('drv_custodyBalance').textContent = fmtMoney(bal);
+
+  const tx = employeeCustodyEntries(employeeId).slice().reverse();
+  const el = document.getElementById('drv_custodyLedger');
+  if(tx.length===0){ el.innerHTML = `<div class="empty-state">ما فيه حركات عهدة مسجلة بعد</div>`; return; }
+  el.innerHTML = `<table><thead><tr><th>التاريخ</th><th>النوع</th><th>التفاصيل</th><th>المبلغ</th></tr></thead><tbody>
+    ${tx.map(x=>`<tr>
+      <td>${x.date||'—'}</td>
+      <td>${x.type==='topup'?'عهدة':'مصروف'}</td>
+      <td>${x.note||x.description||'—'}</td>
+      <td class="num-cell ${x.type==='topup'?'pos':'neg'}">${x.type==='topup'?'+':'-'}${fmtMoney(x.amount)}</td>
+    </tr>`).join('')}
+    </tbody></table>`;
+}
+
+document.getElementById('drv_addCustodyBtn').addEventListener('click', ()=>{
+  document.getElementById('drv_custodyExpForm').style.display = 'none';
+  document.getElementById('drv_saveCustodyExpBtn').style.display = 'none';
+  document.getElementById('drv_ctu_date').value = todayStr();
+  const f = document.getElementById('drv_custodyTopupForm');
+  const show = f.style.display === 'none';
+  f.style.display = show ? 'grid' : 'none';
+  document.getElementById('drv_saveCustodyTopupBtn').style.display = show ? 'block' : 'none';
+});
+document.getElementById('drv_addCustodyExpBtn').addEventListener('click', ()=>{
+  document.getElementById('drv_custodyTopupForm').style.display = 'none';
+  document.getElementById('drv_saveCustodyTopupBtn').style.display = 'none';
+  document.getElementById('drv_cex_date').value = todayStr();
+  const f = document.getElementById('drv_custodyExpForm');
+  const show = f.style.display === 'none';
+  f.style.display = show ? 'grid' : 'none';
+  document.getElementById('drv_saveCustodyExpBtn').style.display = show ? 'block' : 'none';
+});
+
+document.getElementById('drv_saveCustodyTopupBtn').addEventListener('click', async ()=>{
+  if(currentIdx===null) return;
+  const amount = parseFloat(document.getElementById('drv_ctu_amount').value);
+  if(!amount || amount<=0){ alert('أدخل مبلغ صحيح'); return; }
+  if(!fin.employeeCustody) fin.employeeCustody = [];
+  fin.employeeCustody.push({id:uid(), employee_id:data[currentIdx].id, type:'topup',
+    date:document.getElementById('drv_ctu_date').value||todayStr(),
+    amount, note:document.getElementById('drv_ctu_note').value||''});
+  await saveFinData();
+  document.getElementById('drv_ctu_amount').value=''; document.getElementById('drv_ctu_note').value='';
+  document.getElementById('drv_custodyTopupForm').style.display='none';
+  document.getElementById('drv_saveCustodyTopupBtn').style.display='none';
+  renderEmployeeCustody();
+});
+
+document.getElementById('drv_saveCustodyExpBtn').addEventListener('click', async ()=>{
+  if(currentIdx===null) return;
+  const amount = parseFloat(document.getElementById('drv_cex_amount').value);
+  if(!amount || amount<=0){ alert('أدخل مبلغ صحيح'); return; }
+  if(!fin.employeeCustody) fin.employeeCustody = [];
+  fin.employeeCustody.push({id:uid(), employee_id:data[currentIdx].id, type:'expense',
+    date:document.getElementById('drv_cex_date').value||todayStr(),
+    amount, description:document.getElementById('drv_cex_desc').value||''});
+  await saveFinData();
+  document.getElementById('drv_cex_amount').value=''; document.getElementById('drv_cex_desc').value='';
+  document.getElementById('drv_custodyExpForm').style.display='none';
+  document.getElementById('drv_saveCustodyExpBtn').style.display='none';
+  renderEmployeeCustody();
+});
+
 async function initDrv(){
   await loadData();
   fin = window.__financeData || { supervisors:[] };
+  if(!fin.employeeCustody) fin.employeeCustody = [];
   let savedLang = 'ar';
   try{
     const res = await window.storage.get('lang-pref', false);
@@ -1799,9 +1914,11 @@ window.__onDataChange.push(function(){
   if(!document.getElementById('view-drv').classList.contains('active')) return;
   data = window.__driversData || [];
   fin = window.__financeData || fin;
+  if(!fin.employeeCustody) fin.employeeCustody = [];
   renderMiniStats();
   renderList();
   if(statsOpen) renderStatsView();
+  if(currentIdx!==null) renderEmployeeCustody();
 });
 
 })();
@@ -2695,6 +2812,7 @@ async function loadAll(){
   if(!fin.supervisors) fin.supervisors = [];
   if(!fin.generalRevenue) fin.generalRevenue = [];
   if(!fin.generalExpensesGeneral) fin.generalExpensesGeneral = [];
+  if(!fin.employeeCustody) fin.employeeCustody = [];
 }
 
 let toastTimeout=null;
@@ -3004,7 +3122,8 @@ function computeCompanyBalance(){
   const totalRev = (fin.generalRevenue||[]).reduce((s,x)=>s+Math.abs(x.amount||0),0);
   const totalExpGeneral = (fin.generalExpensesGeneral||[]).reduce((s,x)=>s+Math.abs(x.amount||0),0);
   const totalCustodyGiven = (fin.topups||[]).reduce((s,x)=>s+Math.abs(x.amount||0),0);
-  const totalExp = totalExpGeneral + totalCustodyGiven;
+  const totalEmployeeCustodyGiven = (fin.employeeCustody||[]).filter(x=>x.type==='topup').reduce((s,x)=>s+Math.abs(x.amount||0),0);
+  const totalExp = totalExpGeneral + totalCustodyGiven + totalEmployeeCustodyGiven;
   return { totalRev, totalExp, balance: totalRev - totalExp };
 }
 function renderCompanyStatsInto(elId){
@@ -3030,7 +3149,11 @@ function renderCompanyAccount(){
     const s = fin.supervisors.find(sp=>sp.id===x.supervisor_id);
     return {...x, kind:'custody', description: t('custodyGivenTo')+' '+(s?s.name:x.supervisor_id)};
   });
-  const all = revRows.concat(expRows).concat(custodyRows).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const empCustodyRows = (fin.employeeCustody||[]).filter(x=>x.type==='topup').map(x=>{
+    const emp = driversData.find(d=>d.id===x.employee_id);
+    return {...x, kind:'custody', description: t('custodyGivenTo')+' '+(emp?emp.name:x.employee_id)};
+  });
+  const all = revRows.concat(expRows).concat(custodyRows).concat(empCustodyRows).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   if(all.length===0){ el.innerHTML = `<div class="empty-state">${t('emptyGeneralRev')}</div>`; return; }
   el.innerHTML = `<table><thead><tr><th>${t('lblDate')}</th><th>${t('colType')}</th><th>${t('colSource')}</th><th>${t('lblAmount')}</th><th></th></tr></thead><tbody>
     ${all.map(r=>{
