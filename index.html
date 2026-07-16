@@ -249,6 +249,17 @@
   #view-parts .btn{border:none;border-radius:10px;padding:11px 18px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;}
   #view-parts .btn-primary{background:var(--accent);color:#fff;}
   #view-parts .btn-primary:hover{background:var(--accent-dark);}
+  #view-parts .cart-line{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  #view-parts .cart-line select{flex:2;padding:9px 11px;border-radius:9px;border:1px solid var(--line);
+    background:var(--bg);font-family:inherit;font-size:13px;color:var(--ink);}
+  #view-parts .cart-line input{flex:1;max-width:80px;padding:9px 11px;border-radius:9px;border:1px solid var(--line);
+    background:var(--bg);font-family:inherit;font-size:13px;color:var(--ink);}
+  #view-parts .cart-line-del{border:none;background:var(--red-soft);color:var(--red);border-radius:8px;
+    width:32px;height:32px;flex-shrink:0;cursor:pointer;font-size:14px;}
+  #view-parts .cart-line-del:hover{background:var(--red);color:#fff;}
+  #view-parts .btn-add-line{width:100%;border:1.5px dashed var(--line);background:transparent;color:var(--accent-dark);
+    padding:10px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+  #view-parts .btn-add-line:hover{border-color:var(--accent);background:var(--accent-soft);}
   #view-parts table{border-collapse:collapse;width:100%;font-size:13px;}
   #view-parts thead th{text-align:right;padding:9px 10px;color:var(--ink-soft);font-weight:600;font-size:11.8px;border-bottom:1px solid var(--line);}
   #view-parts tbody td{padding:9px 10px;border-bottom:1px solid var(--line);}
@@ -610,7 +621,6 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
       <button class="chip" data-app="Amazon">Amazon</button>
       <button class="chip" data-app="Noon Soon">Noon Soon</button>
       <button class="chip" data-app="__none">بدون تطبيق</button>
-      <button class="chip chip-warn" data-app="__iqama_soon">⚠️ الإقامة قربت تنتهي</button>
     </div>
     <div class="driver-list" id="drv_driverList">
       <div class="empty-state">جاري التحميل...</div>
@@ -1032,6 +1042,18 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
   <!-- ===== MONTHLY IMPORTS ===== -->
   <div class="tab-panel" id="fin_tab-imports">
     <div class="panel">
+      <h3 data-i18n="manualRevTitle"></h3>
+      <div class="hint" data-i18n="manualRevHint"></div>
+      <div class="form-grid">
+        <div class="field"><label data-i18n="lblEmployee"></label><select id="fin_manualRev_driver"></select></div>
+        <div class="field"><label data-i18n="monthLabel2"></label><input type="month" id="fin_manualRev_month"></div>
+        <div class="field"><label data-i18n="lblAmount"></label><input type="number" step="0.01" id="fin_manualRev_amount"></div>
+        <div class="field"><label data-i18n="lblDesc"></label><input type="text" id="fin_manualRev_desc" data-i18n-ph="optionalPh"></div>
+      </div>
+      <button class="btn btn-primary" id="fin_manualRevBtn" data-i18n="addRevBtn"></button>
+    </div>
+
+    <div class="panel">
       <h3 data-i18n="revImportTitle"></h3>
       <div class="hint" data-i18n="revImportHint"></div>
       <div class="form-grid">
@@ -1100,21 +1122,20 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
     <h3 data-i18n="usageTitle"></h3>
     <div class="form-grid">
       <div class="field full"><label data-i18n="lblEmployee"></label><select id="parts_driver"></select></div>
-      <div class="field full"><label data-i18n="lblPart"></label>
-        <select id="parts_select">
-          <option value="__new__" data-i18n="newPartOpt"></option>
-        </select>
-      </div>
-      <div class="field full" id="parts_newFieldsWrap" style="display:none;">
-        <div class="form-grid" style="margin-bottom:0;">
-          <div class="field"><label data-i18n="lblNewPartName"></label><input type="text" id="parts_newName" data-i18n-ph="newPartPh"></div>
-          <div class="field"><label data-i18n="lblUnitCost"></label><input type="number" step="0.01" id="parts_newCost"></div>
-        </div>
-      </div>
-      <div class="field"><label data-i18n="lblQty"></label><input type="number" min="1" value="1" id="parts_qty"></div>
       <div class="field"><label data-i18n="lblDate"></label><input type="date" id="parts_date"></div>
     </div>
-    <button class="btn btn-primary" id="parts_issueBtn" data-i18n="issueBtn"></button>
+
+    <div id="parts_cartLines"></div>
+    <button type="button" class="btn-add-line" id="parts_addLineBtn" data-i18n="addAnotherPart"></button>
+
+    <div class="field full" id="parts_newFieldsWrap" style="display:none;margin-top:14px;">
+      <div class="form-grid" style="margin-bottom:0;">
+        <div class="field"><label data-i18n="lblNewPartName"></label><input type="text" id="parts_newName" data-i18n-ph="newPartPh"></div>
+        <div class="field"><label data-i18n="lblUnitCost"></label><input type="number" step="0.01" id="parts_newCost"></div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="parts_issueBtn" data-i18n="issueBtn" style="margin-top:14px;"></button>
   </div>
 
   <div class="panel">
@@ -1411,26 +1432,8 @@ function renderMiniStats(){
   `;
 }
 
-function iqamaDaysLeft(expStr){
-  if(!expStr) return null;
-  const exp = new Date(expStr+'T00:00:00');
-  if(isNaN(exp)) return null;
-  const today = new Date(); today.setHours(0,0,0,0);
-  return Math.round((exp - today) / 86400000);
-}
-function iqamaFlagHTML(r){
-  const days = iqamaDaysLeft(r.iqama_exp);
-  if(days===null) return '';
-  if(days<0) return `<span class="iqama-flag expired">منتهية</span>`;
-  if(days<=30) return `<span class="iqama-flag soon">${days} يوم</span>`;
-  return '';
-}
-
 function matchesFilter(r){
-  if(activeFilter==='__iqama_soon'){
-    const days = iqamaDaysLeft(r.iqama_exp);
-    if(days===null || days>30) return false;
-  }else if(activeFilter==='__none'){
+  if(activeFilter==='__none'){
     if(r.current_app && r.current_app!=='-' && r.current_app!=='') return false;
   }else if(activeFilter!=='__all'){
     if(r.current_app !== activeFilter) return false;
@@ -1463,7 +1466,7 @@ function renderList(){
     return `<div class="driver-card" data-idx="${i}">
       <div class="driver-avatar">${initials(r.name)}</div>
       <div class="driver-info">
-        <div class="name">${r.name || t('noName')}${iqamaFlagHTML(r)}</div>
+        <div class="name">${r.name || t('noName')}</div>
         <div class="sub">${r.id || '—'}</div>
       </div>
       ${opsToggle}
@@ -2586,6 +2589,7 @@ const TRANSLATIONS = {
     directExpenseTitle:'تسجيل مصروف مباشر (من عهدة المشرف)', lblEmployee:'المندوب', lblCategory:'الفئة',
     catIqama:'تجديد إقامة', catMedical:'تأمين طبي', catMeds:'أدوية', catOther:'أخرى', lblDesc:'وصف',
     ledgerTitle:'سجل الحركات', saved:'تم الحفظ',
+    manualRevTitle:'إضافة إيراد يدويًا', manualRevHint:'لو ما عندك ملف Excel، تقدر تضيف مبلغ الإيراد مباشرة لأي مندوب مع التفاصيل.', addRevBtn:'+ إضافة الإيراد',
     revImportTitle:'استيراد فاتورة الإيراد الشهرية', revImportHint:'ملف CSV فيه عمود لرقم الإقامة أو اسم المندوب + عمود للمبلغ. يتوزع تلقائي حسب المندوب.',
     fuelImportTitle:'استيراد تقرير البنزين الشهري', fuelImportHint:'نفس الفكرة — ملف CSV فيه المندوب والمبلغ المصروف',
     dragCsv:'اسحب ملف CSV هنا أو اختره',
@@ -2617,6 +2621,7 @@ const TRANSLATIONS = {
     directExpenseTitle:"Log Direct Expense (from Supervisor's Custody)", lblEmployee:'Employee', lblCategory:'Category',
     catIqama:'Iqama Renewal', catMedical:'Medical Insurance', catMeds:'Medication', catOther:'Other', lblDesc:'Description',
     ledgerTitle:'Ledger', saved:'Saved',
+    manualRevTitle:'Add Revenue Manually', manualRevHint:"If you don't have an Excel file, you can add a revenue amount directly for any employee with details.", addRevBtn:'+ Add Revenue',
     revImportTitle:'Import Monthly Revenue Invoice', revImportHint:'A CSV with a column for ID number or employee name + an amount column. Distributed automatically per employee.',
     fuelImportTitle:'Import Monthly Fuel Report', fuelImportHint:'Same idea — a CSV with the employee and the amount spent',
     dragCsv:'Drag a CSV file here or choose one',
@@ -2983,6 +2988,20 @@ function setupImport(fileInputId, previewId, monthInputId, targetArrayKey){
     });
   });
 }
+document.getElementById('fin_manualRevBtn').addEventListener('click', async ()=>{
+  const driverId = document.getElementById('fin_manualRev_driver').value;
+  const month = document.getElementById('fin_manualRev_month').value || thisMonth();
+  const amount = parseFloat(document.getElementById('fin_manualRev_amount').value);
+  const description = document.getElementById('fin_manualRev_desc').value || '';
+  if(!driverId){ alert(t('alertEmployee')); return; }
+  if(!amount || amount<=0){ alert(t('alertAmount')); return; }
+  fin.revenueImports.push({id:uid(), driver_id:driverId, month, amount, date: month+'-01', description});
+  await persistFin();
+  document.getElementById('fin_manualRev_amount').value='';
+  document.getElementById('fin_manualRev_desc').value='';
+  renderOverview();
+});
+
 setupImport('fin_revenueFile','fin_revenuePreview','fin_rev_month','revenueImports');
 setupImport('fin_fuelFile','fin_fuelPreview','fin_fuel_month','fuelImports');
 
@@ -2991,6 +3010,8 @@ async function initFin(){
   document.getElementById('fin_overviewMonth').value = thisMonth();
   document.getElementById('fin_rev_month').value = thisMonth();
   document.getElementById('fin_fuel_month').value = thisMonth();
+  document.getElementById('fin_manualRev_month').value = thisMonth();
+  document.getElementById('fin_manualRev_driver').innerHTML = workingDrivers().map(d=>`<option value="${d.id}">${d.name||d.id}</option>`).join('');
   let savedLang = 'ar';
   try{
     const res = await window.storage.get('lang-pref', false);
@@ -3018,7 +3039,7 @@ const TRANSLATIONS = {
     title:'قطع الغيار', subtitle:'المخزون الحالي وتسجيل استخدام القطع',
     invTitle:'المخزون الحالي', importTitle:'استيراد المخزون من ملف',
     importHint:'ملف CSV بعمودين: اسم القطعة، الكمية، وتكلفة الوحدة (اختياري). لو القطعة موجودة تتحدث كميتها، ولو جديدة تُضاف تلقائيًا.',
-    usageTitle:'تسجيل استخدام قطعة', lblEmployee:'الموظف', lblPart:'القطعة',
+    usageTitle:'تسجيل استخدام قطع (يمكن أكثر من قطعة لنفس الموظف)', lblEmployee:'الموظف', lblPart:'القطعة', addAnotherPart:'+ إضافة قطعة ثانية لنفس الموظف',
     newPartOpt:'➕ قطعة جديدة (مو موجودة بالمخزون)', lblNewPartName:'اسم القطعة الجديدة', newPartPh:'مثال: إطار خلفي',
     lblUnitCost:'تكلفة الوحدة (ر.س)', lblQty:'الكمية', lblDate:'التاريخ', issueBtn:'تسجيل الاستخدام',
     recentTitle:'آخر القطع المستخدمة', saved:'تم الحفظ',
@@ -3037,7 +3058,7 @@ const TRANSLATIONS = {
     title:'Spare Parts', subtitle:'Current inventory and part usage logging',
     invTitle:'Current Inventory', importTitle:'Import Inventory from File',
     importHint:'CSV file with two columns: part name, quantity, and unit cost (optional). Existing parts get their quantity updated; new ones are added automatically.',
-    usageTitle:'Log Part Usage', lblEmployee:'Employee', lblPart:'Part',
+    usageTitle:'Log Parts Usage (multiple parts allowed per employee)', lblEmployee:'Employee', lblPart:'Part', addAnotherPart:'+ Add another part for same employee',
     newPartOpt:'➕ New part (not in inventory)', lblNewPartName:'New part name', newPartPh:'e.g. Rear tire',
     lblUnitCost:'Unit cost (SAR)', lblQty:'Quantity', lblDate:'Date', issueBtn:'Log Usage',
     recentTitle:'Recently Used Parts', saved:'Saved',
@@ -3121,20 +3142,51 @@ function renderInventory(){
   }
 }
 
-function renderPartSelect(){
-  const sel = document.getElementById('parts_select');
+let cartLineCount = 0;
+function partOptionsHTML(){
   const existing = (fin.parts||[]).map(p=>`<option value="${p.id}">${p.name} (${p.qty})</option>`).join('');
   const newOpt = isAdmin ? `<option value="__new__">${t('newPartOpt')}</option>` : '';
-  sel.innerHTML = existing + newOpt;
-  sel.value = fin.parts && fin.parts.length ? fin.parts[0].id : (isAdmin ? '__new__' : '');
-  toggleNewFields();
+  return existing + newOpt;
 }
+function addCartLine(){
+  cartLineCount++;
+  const lineId = 'cline_'+cartLineCount;
+  const wrap = document.createElement('div');
+  wrap.className = 'cart-line';
+  wrap.id = lineId;
+  wrap.innerHTML = `
+    <select class="cart-part-select">${partOptionsHTML()}</select>
+    <input type="number" class="cart-qty" min="1" value="1">
+    <button type="button" class="cart-line-del" title="Remove">✕</button>
+  `;
+  document.getElementById('parts_cartLines').appendChild(wrap);
+  wrap.querySelector('.cart-line-del').addEventListener('click', ()=>{
+    if(document.getElementById('parts_cartLines').children.length<=1) return;
+    wrap.remove();
+    updateNewFieldsVisibility();
+  });
+  wrap.querySelector('.cart-part-select').addEventListener('change', updateNewFieldsVisibility);
+}
+function updateNewFieldsVisibility(){
+  const anyNew = Array.from(document.querySelectorAll('.cart-part-select')).some(s=>s.value==='__new__');
+  document.getElementById('parts_newFieldsWrap').style.display = anyNew ? 'block' : 'none';
+}
+function resetCart(){
+  document.getElementById('parts_cartLines').innerHTML = '';
+  cartLineCount = 0;
+  addCartLine();
+  updateNewFieldsVisibility();
+}
+document.getElementById('parts_addLineBtn').addEventListener('click', addCartLine);
 
-function toggleNewFields(){
-  const sel = document.getElementById('parts_select');
-  document.getElementById('parts_newFieldsWrap').style.display = (sel.value==='__new__') ? 'block' : 'none';
+function renderPartSelect(){
+  document.querySelectorAll('.cart-part-select').forEach(sel=>{
+    const cur = sel.value;
+    sel.innerHTML = partOptionsHTML();
+    if(Array.from(sel.options).some(o=>o.value===cur)) sel.value = cur;
+  });
+  if(document.getElementById('parts_cartLines').children.length===0) addCartLine();
 }
-document.getElementById('parts_select').addEventListener('change', toggleNewFields);
 
 function renderRecent(){
   const el = document.getElementById('parts_recentTable');
@@ -3215,35 +3267,41 @@ document.getElementById('parts_csvFile').addEventListener('change', (e)=>{
 document.getElementById('parts_issueBtn').addEventListener('click', async ()=>{
   const driverId = document.getElementById('parts_driver').value;
   if(!driverId){ alert(t('alertEmployee')); return; }
-  const qty = parseInt(document.getElementById('parts_qty').value)||1;
-  const sel = document.getElementById('parts_select');
-  let partId = sel.value;
+  const dateVal = document.getElementById('parts_date').value || todayStr();
+  const lines = Array.from(document.querySelectorAll('.cart-line'));
 
-  if(partId==='__new__'){
+  // نسمح بقطعة جديدة واحدة فقط بكل دفعة (لو محتاجين أكثر، تسجل كل قطعة جديدة لحالها أول)
+  let newPartId = null;
+  const newLine = lines.find(l=>l.querySelector('.cart-part-select').value==='__new__');
+  if(newLine){
     if(!isAdmin){ alert(t('alertNoPerm')); return; }
     const name = document.getElementById('parts_newName').value.trim();
     const cost = parseFloat(document.getElementById('parts_newCost').value)||0;
     if(!name){ alert(t('alertPartName')); return; }
     const newPart = { id: uid(), name, qty: 0, unit_cost: cost };
     fin.parts.push(newPart);
-    partId = newPart.id;
+    newPartId = newPart.id;
   }
 
-  if(!partId){ alert(t('alertNoPart')); return; }
-  const part = fin.parts.find(p=>p.id===partId);
-  if(!part){ alert(t('alertPartMissing')); return; }
-  if(part.qty < qty){
-    if(!confirm(t('confirmNegative', part.qty, qty))) return;
+  for(const line of lines){
+    const sel = line.querySelector('.cart-part-select');
+    const qty = parseInt(line.querySelector('.cart-qty').value)||1;
+    let partId = sel.value==='__new__' ? newPartId : sel.value;
+    if(!partId){ continue; }
+    const part = fin.parts.find(p=>p.id===partId);
+    if(!part){ alert(t('alertPartMissing')); continue; }
+    if(part.qty < qty){
+      if(!confirm(t('confirmNegative', part.qty, qty))) continue;
+    }
+    part.qty -= qty;
+    fin.partTx.push({ id: uid(), type:'issue', part_id: partId, driver_id: driverId,
+      supervisor_id: window.__userEmail || null, qty, date: dateVal });
   }
-  part.qty -= qty;
-
-  fin.partTx.push({ id: uid(), type:'issue', part_id: partId, driver_id: driverId,
-    supervisor_id: window.__userEmail || null, qty, date: document.getElementById('parts_date').value || todayStr() });
 
   await persistFin();
-  document.getElementById('parts_qty').value = 1;
   document.getElementById('parts_newName').value = '';
   document.getElementById('parts_newCost').value = '';
+  resetCart();
   renderAll();
 });
 
