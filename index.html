@@ -957,6 +957,11 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
 
   <!-- ===== OVERVIEW ===== -->
   <div class="tab-panel active" id="fin_tab-overview">
+    <div class="panel">
+      <h3 data-i18n="companyAccountTitle"></h3>
+      <div class="hint" data-i18n="companyAccountHint"></div>
+      <div class="stats-grid" id="fin_overviewCompanyStats"></div>
+    </div>
     <div class="month-picker">
       <span data-i18n="monthLabel"></span>
       <input type="month" id="fin_overviewMonth">
@@ -2770,6 +2775,7 @@ function driverMonthFuel(driverId, month){
 
 // ---------- Overview ----------
 function renderOverview(){
+  renderCompanyStatsInto('fin_overviewCompanyStats');
   const month = document.getElementById('fin_overviewMonth').value || thisMonth();
   document.getElementById('fin_overviewMonth').value = month;
 
@@ -3001,13 +3007,17 @@ function setupImport(fileInputId, previewId, monthInputId, targetArrayKey){
     });
   });
 }
-function renderCompanyAccount(){
+function computeCompanyBalance(){
   const totalRev = (fin.generalRevenue||[]).reduce((s,x)=>s+Math.abs(x.amount||0),0);
   const totalExpGeneral = (fin.generalExpensesGeneral||[]).reduce((s,x)=>s+Math.abs(x.amount||0),0);
   const totalCustodyGiven = (fin.topups||[]).reduce((s,x)=>s+Math.abs(x.amount||0),0);
   const totalExp = totalExpGeneral + totalCustodyGiven;
-  const balance = totalRev - totalExp;
-  const grid = document.getElementById('fin_companyStats');
+  return { totalRev, totalExp, balance: totalRev - totalExp };
+}
+function renderCompanyStatsInto(elId){
+  const grid = document.getElementById(elId);
+  if(!grid) return;
+  const { totalRev, totalExp, balance } = computeCompanyBalance();
   const cards = [
     {num:fmtMoney(totalRev), lbl:t('statTotalIncome'), bar:'green'},
     {num:fmtMoney(totalExp), lbl:t('statTotalExpGeneral'), bar:'red'},
@@ -3015,6 +3025,10 @@ function renderCompanyAccount(){
   ];
   grid.innerHTML = cards.map(c=>`<div class="stat-card"><div class="bar ${c.bar}"></div>
     <div class="num">${c.num}</div><div class="lbl">${c.lbl}</div></div>`).join('');
+}
+
+function renderCompanyAccount(){
+  renderCompanyStatsInto('fin_companyStats');
 
   const el = document.getElementById('fin_generalRevList');
   const revRows = (fin.generalRevenue||[]).map(x=>({...x, kind:'rev'}));
