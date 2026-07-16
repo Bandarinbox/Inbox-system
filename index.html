@@ -248,6 +248,9 @@
     box-shadow:0 0 0 3px var(--accent-soft);}
   #view-parts .btn{border:none;border-radius:10px;padding:11px 18px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;}
   #view-parts .btn-primary{background:var(--accent);color:#fff;}
+  #view-parts .btn-export{border:1px solid var(--line);background:var(--panel);color:var(--ink);
+    padding:9px 16px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+  #view-parts .btn-export:hover{border-color:var(--accent);color:var(--accent-dark);}
   #view-parts .btn-primary:hover{background:var(--accent-dark);}
   #view-parts .cart-line{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
   #view-parts .cart-line select{flex:2;padding:9px 11px;border-radius:9px;border:1px solid var(--line);
@@ -1042,15 +1045,25 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
   <!-- ===== MONTHLY IMPORTS ===== -->
   <div class="tab-panel" id="fin_tab-imports">
     <div class="panel">
-      <h3 data-i18n="manualRevTitle"></h3>
-      <div class="hint" data-i18n="manualRevHint"></div>
-      <div class="form-grid">
+      <h3 data-i18n="companyAccountTitle"></h3>
+      <div class="hint" data-i18n="companyAccountHint"></div>
+      <div class="stats-grid" id="fin_companyStats"></div>
+
+      <div class="form-grid" style="margin-top:16px;">
         <div class="field"><label data-i18n="lblSource"></label><input type="text" id="fin_manualRev_source" data-i18n-ph="srcOtherPh"></div>
-        <div class="field"><label data-i18n="monthLabel2"></label><input type="month" id="fin_manualRev_month"></div>
+        <div class="field"><label data-i18n="lblDate"></label><input type="date" id="fin_manualRev_date"></div>
         <div class="field"><label data-i18n="lblAmount"></label><input type="number" step="0.01" id="fin_manualRev_amount"></div>
         <div class="field"><label data-i18n="lblDesc"></label><input type="text" id="fin_manualRev_desc" data-i18n-ph="optionalPh"></div>
       </div>
       <button class="btn btn-primary" id="fin_manualRevBtn" data-i18n="addRevBtn"></button>
+
+      <div class="form-grid" style="margin-top:16px;">
+        <div class="field"><label data-i18n="lblExpDesc"></label><input type="text" id="fin_genExp_desc" data-i18n-ph="expDescPh"></div>
+        <div class="field"><label data-i18n="lblDate"></label><input type="date" id="fin_genExp_date"></div>
+        <div class="field"><label data-i18n="lblAmount"></label><input type="number" step="0.01" id="fin_genExp_amount"></div>
+      </div>
+      <button class="btn btn-ghost" id="fin_genExpBtn" data-i18n="addExpGenBtn"></button>
+
       <div id="fin_generalRevList" style="margin-top:16px;"></div>
     </div>
 
@@ -1109,6 +1122,7 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
 
   <div class="panel">
     <h3 data-i18n="invTitle"></h3>
+    <button class="btn-export" id="parts_exportBtn" style="margin-bottom:12px;" data-i18n="exportReportBtn"></button>
     <div id="parts_inventoryTable"></div>
   </div>
 
@@ -2590,7 +2604,7 @@ const TRANSLATIONS = {
     directExpenseTitle:'تسجيل مصروف مباشر (من عهدة المشرف)', lblEmployee:'المندوب', lblCategory:'الفئة',
     catIqama:'تجديد إقامة', catMedical:'تأمين طبي', catMeds:'أدوية', catOther:'أخرى', lblDesc:'وصف',
     ledgerTitle:'سجل الحركات', saved:'تم الحفظ',
-    manualRevTitle:'إضافة إيراد عام يدويًا', manualRevHint:'إيراد عام للشركة من تطبيق أو مصدر آخر — لا يُحتسب على مندوب معيّن بجدول الصافي.', addRevBtn:'+ إضافة الإيراد', lblSource:'المصدر', srcOtherPh:'مثال: HS، Noon، Amazon، تحويل بنكي...', alertSource:'أدخل اسم المصدر', emptyGeneralRev:'ما فيه إيراد عام مسجل لهذا الشهر بعد', colSource:'المصدر',
+    companyAccountTitle:'حساب الشركة العام', companyAccountHint:'إيراد ومصاريف عامة للشركة (مو مرتبطة بشهر أو مندوب معيّن) — رصيد تراكمي مستمر.', addRevBtn:'+ إضافة الإيراد', lblSource:'المصدر', srcOtherPh:'مثال: HS، Noon، Amazon، تحويل بنكي...', alertSource:'أدخل اسم المصدر', emptyGeneralRev:'ما فيه أي حركة مسجلة بعد', colSource:'المصدر/الوصف', lblDate:'التاريخ', statTotalIncome:'إجمالي الإيراد العام', statTotalExpGeneral:'إجمالي المصاريف العامة', statCompanyBalance:'رصيد الشركة الحالي', lblExpDesc:'وصف المصروف', expDescPh:'مثال: إيجار المكتب، فاتورة كهرباء...', addExpGenBtn:'+ إضافة مصروف', badgeIncome:'إيراد', badgeExpense:'مصروف', badgeCustodyGiven:'عهدة مُعطاة', custodyGivenTo:'عهدة لـ', alertExpDesc:'أدخل وصف المصروف',
     revImportTitle:'استيراد فاتورة الإيراد الشهرية', revImportHint:'ملف CSV فيه عمود لرقم الإقامة أو اسم المندوب + عمود للمبلغ. يتوزع تلقائي حسب المندوب.',
     fuelImportTitle:'استيراد تقرير البنزين الشهري', fuelImportHint:'نفس الفكرة — ملف CSV فيه المندوب والمبلغ المصروف',
     dragCsv:'اسحب ملف CSV هنا أو اختره',
@@ -2622,7 +2636,7 @@ const TRANSLATIONS = {
     directExpenseTitle:"Log Direct Expense (from Supervisor's Custody)", lblEmployee:'Employee', lblCategory:'Category',
     catIqama:'Iqama Renewal', catMedical:'Medical Insurance', catMeds:'Medication', catOther:'Other', lblDesc:'Description',
     ledgerTitle:'Ledger', saved:'Saved',
-    manualRevTitle:'Add General Revenue Manually', manualRevHint:"General company revenue from an app or other source — not attributed to a specific employee in the net table.", addRevBtn:'+ Add Revenue', lblSource:'Source', srcOtherPh:'e.g. HS, Noon, Amazon, bank transfer...', alertSource:'Enter the source name', emptyGeneralRev:'No general revenue logged for this month yet', colSource:'Source',
+    companyAccountTitle:'General Company Account', companyAccountHint:'General company income and expenses (not tied to a specific month or employee) — an ongoing running balance.', addRevBtn:'+ Add Revenue', lblSource:'Source', srcOtherPh:'e.g. HS, Noon, Amazon, bank transfer...', alertSource:'Enter the source name', emptyGeneralRev:'No transactions logged yet', colSource:'Source/Description', statTotalIncome:'Total General Income', statTotalExpGeneral:'Total General Expenses', statCompanyBalance:'Current Company Balance', lblExpDesc:'Expense Description', expDescPh:'e.g. Office rent, electricity bill...', addExpGenBtn:'+ Add Expense', badgeIncome:'Income', badgeExpense:'Expense', badgeCustodyGiven:'Custody Given', custodyGivenTo:'Custody to', alertExpDesc:'Enter the expense description',
     revImportTitle:'Import Monthly Revenue Invoice', revImportHint:'A CSV with a column for ID number or employee name + an amount column. Distributed automatically per employee.',
     fuelImportTitle:'Import Monthly Fuel Report', fuelImportHint:'Same idea — a CSV with the employee and the amount spent',
     dragCsv:'Drag a CSV file here or choose one',
@@ -2658,7 +2672,7 @@ async function setLanguage(lang, persist_pref){
   applyStaticTranslations();
   renderOverview();
   if(document.getElementById('fin_tab-custody').classList.contains('active')) renderCustodyList();
-  if(document.getElementById('fin_tab-imports').classList.contains('active')) renderGeneralRevList();
+  if(document.getElementById('fin_tab-imports').classList.contains('active')) renderCompanyAccount();
   if(currentDriverId) renderDriverDetail();
   if(persist_pref!==false){
     try{ await window.storage.set('lang-pref', lang, false); }catch(e){}
@@ -2679,9 +2693,10 @@ function initials(name){ if(!name) return '؟'; const p=name.trim().split(/\s+/)
 
 async function loadAll(){
   driversData = window.__driversData || [];
-  fin = window.__financeData || { supervisors:[], parts:[], partTx:[], expenses:[], topups:[], fuelImports:[], revenueImports:[], generalRevenue:[] };
+  fin = window.__financeData || { supervisors:[], parts:[], partTx:[], expenses:[], topups:[], fuelImports:[], revenueImports:[], generalRevenue:[], generalExpensesGeneral:[] };
   if(!fin.supervisors) fin.supervisors = [];
   if(!fin.generalRevenue) fin.generalRevenue = [];
+  if(!fin.generalExpensesGeneral) fin.generalExpensesGeneral = [];
 }
 
 let toastTimeout=null;
@@ -2759,21 +2774,15 @@ function renderOverview(){
   document.getElementById('fin_overviewMonth').value = month;
 
   const drivers = workingDrivers();
-  let totalRevenue=0, totalExpenses=0, totalFuel=0;
+  let totalRevenue=0, totalExpenses=0;
   const rows = drivers.map(d=>{
     const rev = driverMonthRevenue(d.id, month);
     const directSpend = driverExpenseEntries(d.id).filter(x=>x.kind==='direct' && (x.date||'').slice(0,7)===month).reduce((s,x)=>s+Math.abs(x.amount),0);
-    const partsSpend = driverExpenseEntries(d.id).filter(x=>x.kind==='parts' && (x.date||'').slice(0,7)===month).reduce((s,x)=>s+Math.abs(x.amount),0);
-    const fuel = driverMonthFuel(d.id, month);
-    const totalCost = directSpend + partsSpend + fuel;
+    const totalCost = directSpend;
     const net = rev - totalCost;
-    totalRevenue += rev; totalExpenses += totalCost; totalFuel += fuel;
-    return {d, rev, directSpend, partsSpend, fuel, totalCost, net};
+    totalRevenue += rev; totalExpenses += totalCost;
+    return {d, rev, directSpend, totalCost, net};
   }).filter(r=>r.rev>0 || r.totalCost>0);
-
-  // إيراد عام (تطبيقات/مصادر أخرى) — يُضاف للإجمالي بدون ما يُنسب لمندوب معيّن
-  const generalRevMonth = (fin.generalRevenue||[]).filter(x=>x.month===month).reduce((s,x)=>s+Math.abs(x.amount||0),0);
-  totalRevenue += generalRevMonth;
 
   rows.sort((a,b)=>b.net-a.net);
 
@@ -2782,7 +2791,6 @@ function renderOverview(){
     {num:fmtMoney(totalRevenue), lbl:t('statRevenue'), bar:'green'},
     {num:fmtMoney(totalExpenses), lbl:t('statExpenses'), bar:'red'},
     {num:fmtMoney(totalRevenue-totalExpenses), lbl:t('statNet'), bar:'accent'},
-    {num:fmtMoney(totalFuel), lbl:t('statFuel'), bar:'amber'},
   ];
   grid.innerHTML = cards.map(c=>`<div class="stat-card"><div class="bar ${c.bar}"></div>
     <div class="num">${c.num}</div><div class="lbl">${c.lbl}</div></div>`).join('');
@@ -2793,14 +2801,12 @@ function renderOverview(){
     return;
   }
   tableEl.innerHTML = `<table><thead><tr>
-      <th>${t('colEmployee')}</th><th>${t('colRevenue')}</th><th>${t('colDirectExp')}</th><th>${t('colParts')}</th><th>${t('colFuel')}</th><th>${t('colNet')}</th>
+      <th>${t('colEmployee')}</th><th>${t('colRevenue')}</th><th>${t('colDirectExp')}</th><th>${t('colNet')}</th>
     </tr></thead><tbody>
     ${rows.map(r=>`<tr>
       <td>${r.d.name||r.d.id}</td>
       <td class="num-cell">${fmtMoney(r.rev)}</td>
       <td class="num-cell">${fmtMoney(r.directSpend)}</td>
-      <td class="num-cell">${fmtMoney(r.partsSpend)}</td>
-      <td class="num-cell">${fmtMoney(r.fuel)}</td>
       <td class="num-cell ${r.net>=0?'pos':'neg'}">${fmtMoney(r.net)}</td>
     </tr>`).join('')}
     </tbody></table>`;
@@ -2995,43 +3001,91 @@ function setupImport(fileInputId, previewId, monthInputId, targetArrayKey){
     });
   });
 }
-function renderGeneralRevList(){
-  const month = document.getElementById('fin_manualRev_month').value || thisMonth();
+function renderCompanyAccount(){
+  const totalRev = (fin.generalRevenue||[]).reduce((s,x)=>s+Math.abs(x.amount||0),0);
+  const totalExpGeneral = (fin.generalExpensesGeneral||[]).reduce((s,x)=>s+Math.abs(x.amount||0),0);
+  const totalCustodyGiven = (fin.topups||[]).reduce((s,x)=>s+Math.abs(x.amount||0),0);
+  const totalExp = totalExpGeneral + totalCustodyGiven;
+  const balance = totalRev - totalExp;
+  const grid = document.getElementById('fin_companyStats');
+  const cards = [
+    {num:fmtMoney(totalRev), lbl:t('statTotalIncome'), bar:'green'},
+    {num:fmtMoney(totalExp), lbl:t('statTotalExpGeneral'), bar:'red'},
+    {num:fmtMoney(balance), lbl:t('statCompanyBalance'), bar:'accent'},
+  ];
+  grid.innerHTML = cards.map(c=>`<div class="stat-card"><div class="bar ${c.bar}"></div>
+    <div class="num">${c.num}</div><div class="lbl">${c.lbl}</div></div>`).join('');
+
   const el = document.getElementById('fin_generalRevList');
-  const rows = (fin.generalRevenue||[]).filter(x=>x.month===month).slice().reverse();
-  if(rows.length===0){ el.innerHTML = `<div class="empty-state">${t('emptyGeneralRev')}</div>`; return; }
-  el.innerHTML = `<table><thead><tr><th>${t('colSource')}</th><th>${t('lblDesc')}</th><th>${t('lblAmount')}</th><th></th></tr></thead><tbody>
-    ${rows.map(r=>`<tr>
-      <td>${r.source}</td><td>${r.description||'—'}</td><td class="num-cell">${fmtMoney(r.amount)}</td>
-      <td><button class="btn-danger-sm gen-rev-del" data-id="${r.id}">✕</button></td>
-    </tr>`).join('')}
+  const revRows = (fin.generalRevenue||[]).map(x=>({...x, kind:'rev'}));
+  const expRows = (fin.generalExpensesGeneral||[]).map(x=>({...x, kind:'exp'}));
+  const custodyRows = (fin.topups||[]).map(x=>{
+    const s = fin.supervisors.find(sp=>sp.id===x.supervisor_id);
+    return {...x, kind:'custody', description: t('custodyGivenTo')+' '+(s?s.name:x.supervisor_id)};
+  });
+  const all = revRows.concat(expRows).concat(custodyRows).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(all.length===0){ el.innerHTML = `<div class="empty-state">${t('emptyGeneralRev')}</div>`; return; }
+  el.innerHTML = `<table><thead><tr><th>${t('lblDate')}</th><th>${t('colType')}</th><th>${t('colSource')}</th><th>${t('lblAmount')}</th><th></th></tr></thead><tbody>
+    ${all.map(r=>{
+      const isRev = r.kind==='rev';
+      const badge = isRev ? `<span class="badge topup">${t('badgeIncome')}</span>`
+        : r.kind==='custody' ? `<span class="badge parts">${t('badgeCustodyGiven')}</span>`
+        : `<span class="badge direct">${t('badgeExpense')}</span>`;
+      const label = isRev ? (r.source||'—') : (r.description||'—');
+      const delBtn = r.kind==='custody' ? '' : `<button class="btn-danger-sm gen-rev-del" data-id="${r.id}" data-kind="${r.kind}">✕</button>`;
+      return `<tr>
+      <td>${r.date||'—'}</td>
+      <td>${badge}</td>
+      <td>${label}</td>
+      <td class="num-cell ${isRev?'pos':'neg'}">${isRev?'+':'-'}${fmtMoney(r.amount)}</td>
+      <td>${delBtn}</td>
+    </tr>`;
+    }).join('')}
     </tbody></table>`;
   el.querySelectorAll('.gen-rev-del').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       if(!confirm(t('confirmDeleteSup'))) return;
-      fin.generalRevenue = fin.generalRevenue.filter(r=>r.id!==btn.dataset.id);
+      if(btn.dataset.kind==='rev'){
+        fin.generalRevenue = fin.generalRevenue.filter(r=>r.id!==btn.dataset.id);
+      }else{
+        fin.generalExpensesGeneral = fin.generalExpensesGeneral.filter(r=>r.id!==btn.dataset.id);
+      }
       await persistFin();
-      renderGeneralRevList();
+      renderCompanyAccount();
       renderOverview();
     });
   });
 }
-document.getElementById('fin_manualRev_month').addEventListener('change', renderGeneralRevList);
 
 document.getElementById('fin_manualRevBtn').addEventListener('click', async ()=>{
   const source = document.getElementById('fin_manualRev_source').value.trim();
-  const month = document.getElementById('fin_manualRev_month').value || thisMonth();
+  const date = document.getElementById('fin_manualRev_date').value || todayStr();
   const amount = parseFloat(document.getElementById('fin_manualRev_amount').value);
   const description = document.getElementById('fin_manualRev_desc').value || '';
   if(!source){ alert(t('alertSource')); return; }
   if(!amount || amount<=0){ alert(t('alertAmount')); return; }
   if(!fin.generalRevenue) fin.generalRevenue = [];
-  fin.generalRevenue.push({id:uid(), source, month, amount, date: month+'-01', description});
+  fin.generalRevenue.push({id:uid(), source, month:date.slice(0,7), amount, date, description});
   await persistFin();
   document.getElementById('fin_manualRev_source').value='';
   document.getElementById('fin_manualRev_amount').value='';
   document.getElementById('fin_manualRev_desc').value='';
-  renderGeneralRevList();
+  renderCompanyAccount();
+  renderOverview();
+});
+
+document.getElementById('fin_genExpBtn').addEventListener('click', async ()=>{
+  const description = document.getElementById('fin_genExp_desc').value.trim();
+  const date = document.getElementById('fin_genExp_date').value || todayStr();
+  const amount = parseFloat(document.getElementById('fin_genExp_amount').value);
+  if(!description){ alert(t('alertExpDesc')); return; }
+  if(!amount || amount<=0){ alert(t('alertAmount')); return; }
+  if(!fin.generalExpensesGeneral) fin.generalExpensesGeneral = [];
+  fin.generalExpensesGeneral.push({id:uid(), description, date, amount});
+  await persistFin();
+  document.getElementById('fin_genExp_desc').value='';
+  document.getElementById('fin_genExp_amount').value='';
+  renderCompanyAccount();
   renderOverview();
 });
 
@@ -3043,8 +3097,9 @@ async function initFin(){
   document.getElementById('fin_overviewMonth').value = thisMonth();
   document.getElementById('fin_rev_month').value = thisMonth();
   document.getElementById('fin_fuel_month').value = thisMonth();
-  document.getElementById('fin_manualRev_month').value = thisMonth();
-  renderGeneralRevList();
+  document.getElementById('fin_manualRev_date').value = todayStr();
+  document.getElementById('fin_genExp_date').value = todayStr();
+  renderCompanyAccount();
   let savedLang = 'ar';
   try{
     const res = await window.storage.get('lang-pref', false);
@@ -3061,7 +3116,7 @@ window.__onDataChange.push(function(){
   if(!fin.generalRevenue) fin.generalRevenue = [];
   renderOverview();
   if(document.getElementById('fin_tab-custody').classList.contains('active')) renderCustodyList();
-  if(document.getElementById('fin_tab-imports').classList.contains('active')) renderGeneralRevList();
+  if(document.getElementById('fin_tab-imports').classList.contains('active')) renderCompanyAccount();
 });
 
 })();
@@ -3077,7 +3132,7 @@ const TRANSLATIONS = {
     usageTitle:'تسجيل استخدام قطع (يمكن أكثر من قطعة لنفس الموظف)', lblEmployee:'الموظف', lblPart:'القطعة', addAnotherPart:'+ إضافة قطعة ثانية لنفس الموظف',
     newPartOpt:'➕ قطعة جديدة (مو موجودة بالمخزون)', lblNewPartName:'اسم القطعة الجديدة', newPartPh:'مثال: إطار خلفي',
     lblUnitCost:'تكلفة الوحدة (ر.س)', lblQty:'الكمية', lblDate:'التاريخ', issueBtn:'تسجيل الاستخدام',
-    recentTitle:'آخر القطع المستخدمة', saved:'تم الحفظ',
+    recentTitle:'آخر القطع المستخدمة', exportReportBtn:'⬇️ تصدير تقرير Excel', saved:'تم الحفظ',
     emptyInv:'ما فيه قطع بالمخزون بعد', emptyRecent:'ما فيه استخدامات مسجلة بعد',
     colPart:'القطعة', colQtyAvail:'الكمية المتوفرة', colUnitCost:'تكلفة الوحدة',
     colDate:'التاريخ', colEmployee:'الموظف', colQty:'الكمية', colStatus:'الحالة',
@@ -3096,7 +3151,7 @@ const TRANSLATIONS = {
     usageTitle:'Log Parts Usage (multiple parts allowed per employee)', lblEmployee:'Employee', lblPart:'Part', addAnotherPart:'+ Add another part for same employee',
     newPartOpt:'➕ New part (not in inventory)', lblNewPartName:'New part name', newPartPh:'e.g. Rear tire',
     lblUnitCost:'Unit cost (SAR)', lblQty:'Quantity', lblDate:'Date', issueBtn:'Log Usage',
-    recentTitle:'Recently Used Parts', saved:'Saved',
+    recentTitle:'Recently Used Parts', exportReportBtn:'⬇️ Export Excel Report', saved:'Saved',
     emptyInv:'No parts in inventory yet', emptyRecent:'No usage logged yet',
     colPart:'Part', colQtyAvail:'Available Qty', colUnitCost:'Unit Cost',
     colDate:'Date', colEmployee:'Employee', colQty:'Qty', colStatus:'Status',
@@ -3338,6 +3393,25 @@ document.getElementById('parts_issueBtn').addEventListener('click', async ()=>{
   document.getElementById('parts_newCost').value = '';
   resetCart();
   renderAll();
+});
+
+document.getElementById('parts_exportBtn').addEventListener('click', ()=>{
+  const invRows = (fin.parts||[]).map(p=>({
+    [t('colPart')]: p.name, [t('colQtyAvail')]: p.qty, [t('colUnitCost')]: p.unit_cost,
+  }));
+  const usageRows = (fin.partTx||[]).filter(x=>x.type==='issue').map(x=>{
+    const d = driversData.find(dd=>dd.id===x.driver_id);
+    const p = (fin.parts||[]).find(pp=>pp.id===x.part_id);
+    return {
+      [t('colDate')]: x.date||'', [t('colEmployee')]: d?d.name:x.driver_id,
+      [t('colPart')]: p?p.name:t('deletedPart'), [t('colQty')]: x.qty,
+    };
+  });
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(invRows), t('invTitle'));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(usageRows), t('recentTitle'));
+  const dateStr = todayStr();
+  XLSX.writeFile(wb, 'قطع_غيار_InBox_'+dateStr+'.xlsx');
 });
 
 async function initParts(){
